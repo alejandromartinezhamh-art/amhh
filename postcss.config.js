@@ -1,1 +1,6 @@
-// Configuration removed (CDN usage)
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
