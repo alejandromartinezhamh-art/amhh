@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="es" data-resolution="portrait">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <script src="assets/vendor/gsap.min.js"></script>
+    <style>
+      @font-face {
+        font-family: "Inter Display";
+        src: url("assets/fonts/InterDisplay-Black.otf") format("opentype");
+        font-weight: 900;
+      }
+      @font-face {
+        font-family: "Inter Display";
+        src: url("assets/fonts/InterDisplay-ExtraBold.otf") format("opentype");
+        font-weight: 800;
+      }
+      @font-face {
+        font-family: "Inter Display";
+        src: url("assets/fonts/InterDisplay-SemiBold.otf") format("opentype");
+        font-weight: 600;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        width: 1080px;
+        height: 1920px;
+        overflow: hidden;
+        background: #0b0b10;
+      }
+      #root {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        font-family: "Inter Display", sans-serif;
+        color: #f5f5f0;
+      }
+
+      /* ---------- fondo vivo (siempre en movimiento) ---------- */
+      #bg {
+        position: absolute;
+        inset: 0;
+      }
+      .blob {
+        position: absolute;
+        width: 900px;
+        height: 900px;
+        border-radius: 50%;
+        filter: blur(120px);
+        opacity: 0.55;
+      }
+      #blob-a {
+        left: -300px;
+        top: -200px;
+        background: #3b2bff;
+      }
+      #blob-b {
+        left: 480px;
+        top: 1100px;
+        background: #b6ff3b;
+        opacity: 0.28;
+      }
+      #grid {
+        position: absolute;
+        inset: -120px;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.05) 2px, transparent 2px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.05) 2px, transparent 2px);
+        background-size: 120px 120px;
+      }
+
+      /* ---------- barra de progreso ---------- */
+      #progress-track {
+        position: absolute;
+        left: 80px;
+        right: 80px;
+        top: 150px;
+        height: 10px;
+        border-radius: 5px;
+        background: rgba(255, 255, 255, 0.14);
+        overflow: hidden;
+      }
+      #progress-fill {
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: #b6ff3b;
+        transform-origin: left center;
+      }
+
+      /* ---------- escenas ---------- */
+      .scene {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: flex-start;
+        padding: 0 90px 520px;
+      }
+      .inner {
+        width: 100%;
+      }
+      .kicker {
+        display: inline-block;
+        font-weight: 800;
+        font-size: 52px;
+        letter-spacing: 0.04em;
+        color: #0b0b10;
+        background: #b6ff3b;
+        padding: 10px 26px 12px;
+        border-radius: 14px;
+        margin-bottom: 36px;
+      }
+      .num {
+        display: block;
+        font-weight: 900;
+        font-size: 230px;
+        line-height: 0.9;
+        letter-spacing: -0.04em;
+        color: #b6ff3b;
+        margin-bottom: 20px;
+      }
+      .head {
+        display: block;
+        font-weight: 900;
+        font-size: 132px;
+        line-height: 0.98;
+        letter-spacing: -0.03em;
+        text-transform: uppercase;
+        max-width: 900px;
+      }
+      .head .line {
+        display: block;
+      }
+      .sub {
+        display: block;
+        margin-top: 34px;
+        font-weight: 600;
+        font-size: 68px;
+        line-height: 1.15;
+        color: rgba(245, 245, 240, 0.78);
+        max-width: 900px;
+        text-wrap: balance;
+      }
+      .accent {
+        color: #b6ff3b;
+      }
+      #s0 .head {
+        font-size: 124px;
+      }
+      #s4 .head {
+        font-size: 150px;
+      }
+      .cta-pill {
+        display: inline-block;
+        margin-top: 48px;
+        font-weight: 800;
+        font-size: 88px;
+        padding: 26px 60px 32px;
+        border-radius: 999px;
+        background: #f5f5f0;
+        color: #0b0b10;
+      }
+
+      /* ---------- subtítulos animados ---------- */
+      #captions {
+        position: absolute;
+        left: 70px;
+        right: 70px;
+        top: 1300px;
+        height: 260px;
+      }
+      .cap {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-content: center;
+        gap: 6px 22px;
+        text-align: center;
+        opacity: 0;
+      }
+      .w {
+        display: inline-block;
+        font-weight: 900;
+        font-size: 84px;
+        line-height: 1.12;
+        text-transform: uppercase;
+        color: #ffffff;
+        padding: 0 14px 6px;
+        border-radius: 16px;
+        -webkit-text-stroke: 3px #0b0b10;
+        paint-order: stroke fill;
+        text-shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+      }
+    </style>
+  </head>
+  <body>
+    <div
+      id="root"
+      data-composition-id="main"
+      data-start="0"
+      data-duration="15"
+      data-width="1080"
+      data-height="1920"
+    >
+      <div id="bg-layer" class="clip" data-start="0" data-duration="15" data-track-index="0">
+        <div id="bg">
+          <div id="blob-a" class="blob" data-layout-allow-overflow></div>
+          <div id="blob-b" class="blob" data-layout-allow-overflow></div>
+          <div id="grid"></div>
+        </div>
+      </div>
+
+      <div id="progress-layer" class="clip" data-start="0" data-duration="15" data-track-index="1">
+        <div id="progress-track"><span id="progress-fill"></span></div>
+      </div>
+
+      <!-- Escena 0: gancho -->
+      <section id="s0" class="scene clip" data-start="0" data-duration="3" data-track-index="2">
+        <div class="inner">
+          <span class="kicker k">NEGOCIO PARALELO</span>
+          <h1 class="head">
+            <span class="line">¿Por qué</span>
+            <span class="line">monto un</span>
+            <span class="line accent">negocio</span>
+            <span class="line accent">paralelo?</span>
+          </h1>
+        </div>
+      </section>
+
+      <!-- Escena 1 -->
+      <section id="s1" class="scene clip" data-start="3" data-duration="3.6" data-track-index="2">
+        <div class="inner">
+          <span class="num">01</span>
+          <h2 class="head">
+            <span class="line">Comisiones</span>
+            <span class="line accent">altas</span>
+          </h2>
+          <p class="sub">Cada venta me deja mucho más.</p>
+        </div>
+      </section>
+
+      <!-- Escena 2 -->
+      <section id="s2" class="scene clip" data-start="6.6" data-duration="3" data-track-index="2">
+        <div class="inner">
+          <span class="num">02</span>
+          <h2 class="head">
+            <span class="line">Ingresos</span>
+            <span class="line accent">extra</span>
+          </h2>
+          <p class="sub">Sin dejar mi trabajo.</p>
+        </div>
+      </section>
+
+      <!-- Escena 3 -->
+      <section id="s3" class="scene clip" data-start="9.6" data-duration="3" data-track-index="2">
+        <div class="inner">
+          <span class="num">03</span>
+          <h2 class="head">
+            <span class="line">Algo</span>
+            <span class="line accent">propio</span>
+          </h2>
+          <p class="sub">Que puede escalar.</p>
+        </div>
+      </section>
+
+      <!-- Escena 4: CTA -->
+      <section id="s4" class="scene clip" data-start="12.6" data-duration="2.4" data-track-index="2">
+        <div class="inner">
+          <h2 class="head">
+            <span class="line">¿Te</span>
+            <span class="line accent">apuntas?</span>
+          </h2>
+          <span class="cta-pill">Sígueme →</span>
+        </div>
+      </section>
+
+      <!-- Subtítulos (se rellenan de forma determinista desde CAPTIONS) -->
+      <div id="captions-layer" class="clip" data-start="0" data-duration="15" data-track-index="3">
+        <div id="captions"></div>
+      </div>
+
+      <!-- Voz en off (Kokoro TTS local, voz ef_dora) -->
+      <audio id="vo0" data-start="0.3" data-duration="2.3" data-track-index="4" src="assets/vo/l0.wav"></audio>
+      <audio id="vo1" data-start="3.2" data-duration="3.1" data-track-index="4" src="assets/vo/l1.wav"></audio>
+      <audio id="vo2" data-start="6.8" data-duration="2.5" data-track-index="4" src="assets/vo/l2.wav"></audio>
+      <audio id="vo3" data-start="9.8" data-duration="2.5" data-track-index="4" src="assets/vo/l3.wav"></audio>
+      <audio id="vo4" data-start="12.9" data-duration="1.2" data-track-index="4" src="assets/vo/l4.wav"></audio>
+    </div>
+
+    <script>
+      // Frases de subtítulo: cada grupo aparece en [start, end] y sus palabras se
+      // iluminan en orden, repartidas por longitud de palabra dentro del grupo.
+      const CAPTIONS = [
+        { start: 0.3, end: 1.35, text: "¿Por qué estoy" },
+        { start: 1.35, end: 2.75, text: "montando un negocio paralelo?" },
+        { start: 3.2, end: 4.35, text: "Uno: comisiones altas." },
+        { start: 4.35, end: 6.45, text: "Cada venta me deja mucho más." },
+        { start: 6.8, end: 8.0, text: "Dos: ingresos extra," },
+        { start: 8.0, end: 9.45, text: "sin dejar mi trabajo." },
+        { start: 9.8, end: 11.0, text: "Tres: construyo algo" },
+        { start: 11.0, end: 12.45, text: "propio que puede escalar." },
+        { start: 12.9, end: 13.55, text: "¿Te apuntas?" },
+        { start: 13.55, end: 15.0, text: "Sígueme." },
+      ];
+
+      const ACCENT = "#b6ff3b";
+      const INK = "#0b0b10";
+      const capRoot = document.getElementById("captions");
+      const tl = gsap.timeline({ paused: true });
+
+      // ---- fondo: movimiento continuo durante los 15 s ----
+      tl.fromTo("#blob-a", { x: 0, y: 0 }, { x: 420, y: 520, duration: 15, ease: "none" }, 0);
+      tl.fromTo("#blob-b", { x: 0, y: 0 }, { x: -520, y: -420, duration: 15, ease: "none" }, 0);
+      tl.fromTo("#grid", { y: 0 }, { y: 120, duration: 15, ease: "none" }, 0);
+      tl.fromTo("#progress-fill", { scaleX: 0 }, { scaleX: 1, duration: 15, ease: "none" }, 0);
+
+      // ---- escenas: entrada, deriva continua, salida ----
+      const scenes = [
+        { id: "#s0", start: 0, dur: 3 },
+        { id: "#s1", start: 3, dur: 3.6 },
+        { id: "#s2", start: 6.6, dur: 3 },
+        { id: "#s3", start: 9.6, dur: 3 },
+        { id: "#s4", start: 12.6, dur: 2.4 },
+      ];
+      // solo anima los elementos que existen en cada escena
+      const has = (sel) => document.querySelector(sel) !== null;
+      const maybe = (sel, from, to, at) => {
+        if (has(sel)) tl.fromTo(sel, from, to, at);
+      };
+      scenes.forEach((s, i) => {
+        const inner = s.id + " .inner";
+        const lines = s.id + " .head .line";
+        // deriva lenta: nunca hay un fotograma quieto
+        tl.fromTo(inner, { scale: 1 }, { scale: 1.06, duration: s.dur, ease: "none" }, s.start);
+        tl.fromTo(
+          lines,
+          { yPercent: 45, opacity: 0.45 },
+          { yPercent: 0, opacity: 1, duration: 0.35, ease: "power3.out", stagger: 0.06 },
+          s.start,
+        );
+        maybe(
+          s.id + " .num",
+          { x: -80, opacity: 0.45 },
+          { x: 0, opacity: 1, duration: 0.4, ease: "back.out(2)" },
+          s.start,
+        );
+        maybe(
+          s.id + " .kicker",
+          { y: -30, opacity: 0.5 },
+          { y: 0, opacity: 1, duration: 0.35, ease: "power2.out" },
+          s.start,
+        );
+        maybe(
+          s.id + " .sub",
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" },
+          s.start + 0.35,
+        );
+      });
+      tl.fromTo(
+        "#s4 .cta-pill",
+        { scale: 0.6, opacity: 0 },
+        { scale: 1, opacity: 1, duration: 0.45, ease: "back.out(2.2)" },
+        13.4,
+      );
+      tl.to("#s4 .cta-pill", { scale: 1.08, duration: 0.3, ease: "sine.inOut", yoyo: true, repeat: 1 }, 14.2);
+
+      // ---- subtítulos animados palabra a palabra ----
+      CAPTIONS.forEach((c, gi) => {
+        const group = document.createElement("div");
+        group.className = "cap";
+        group.id = "cap-" + gi;
+        const words = c.text.split(" ");
+        words.forEach((w, wi) => {
+          const span = document.createElement("span");
+          span.className = "w";
+          span.id = "cap-" + gi + "-" + wi;
+          span.textContent = w;
+          group.appendChild(span);
+        });
+        capRoot.appendChild(group);
+
+        const isLast = gi === CAPTIONS.length - 1;
+        tl.fromTo(
+          group,
+          { opacity: 0, y: 40, scale: 0.9 },
+          { opacity: 1, y: 0, scale: 1, duration: 0.18, ease: "back.out(2)" },
+          c.start,
+        );
+        if (!isLast) {
+          tl.to(group, { opacity: 0, duration: 0.08, ease: "none" }, c.end - 0.08);
+        }
+
+        // reparto del tiempo hablado de este grupo según la longitud de cada palabra
+        const total = words.reduce((n, w) => n + w.length + 1, 0);
+        const speakEnd = isLast ? Math.min(c.end, 14.2) : c.end;
+        let t = c.start;
+        words.forEach((w, wi) => {
+          const span = "#cap-" + gi + "-" + wi;
+          const d = ((w.length + 1) / total) * (speakEnd - c.start);
+          tl.fromTo(
+            span,
+            { scale: 1, color: "#ffffff", backgroundColor: "rgba(182,255,59,0)" },
+            {
+              scale: 1.12,
+              color: INK,
+              backgroundColor: ACCENT,
+              duration: 0.1,
+              ease: "power2.out",
+              immediateRender: false,
+            },
+            t,
+          );
+          if (!(isLast && wi === words.length - 1)) {
+            tl.to(
+              span,
+              {
+                scale: 1,
+                color: "#ffffff",
+                backgroundColor: "rgba(182,255,59,0)",
+                duration: 0.1,
+                ease: "power2.in",
+              },
+              t + d - 0.02,
+            );
+          }
+          t += d;
+        });
+      });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
